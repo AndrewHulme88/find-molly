@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring';
 import { useParams, useNavigate } from 'react-router-dom';
+import GameBoard from '../components/GameBoard';
 
 const Level = () => {
   const { levelId } = useParams();
@@ -10,7 +11,6 @@ const Level = () => {
   const [wallyPosition, setWallyPosition] = useState({ x: 0, y: 0 });
   const [score, setScore] = useState(100);
   const [time, setTime] = useState(30);
-  const [successAnimation, setSuccessAnimation] = useState({ opacity: 0 });
 
   useEffect(() => {
     if (level === 2) setGridSize(30);
@@ -37,52 +37,25 @@ const Level = () => {
 
   const checkClick = (x, y) => {
     if (x === wallyPosition.x && y === wallyPosition.y) {
-      // Trigger success animation
-      setSuccessAnimation({
-        from: { opacity: 0 },
-        to: { opacity: 1 },
-        config: { duration: 1000 }
-      });
-      setTimeout(() => {
-        if (level < 3) {
-          navigate(`/level/ ${level + 1}`);
-        } else {
-          navigate('/');
-        }
-      }, 1000);
+      // Success animation
+      const successAnimation = useSpring({ opacity: 1, from: { opacity: 0 }, config: { duration: 1000 } });
+      alert('You found Molly!');
+      // Logic for next level or go home
+      if (level < 3) {
+        navigate(`/level/ ${level + 1}`);
+      } else {
+        navigate('/');
+      }
     } else {
       setScore(score - 5); // Penalty for wrong click
     }
-  };
-
-  const getRandomColor = () => {
-    const colors = ['#4CAF50', '#2196F3', '#FFC107', '#9E9E9E'];
-    return colors[Math.floor(Math.random() * colors.length)];
   };
 
   return (
     <div>
       <p>Score: {score}</p>
       <p>Time left: {time}</p>
-      <animated.div style={successAnimation}>
-        <h1 style={{ color: 'green' }}>Found Molly!</h1>
-      </animated.div>
-      {Array(gridSize).fill().map((_, y) => (
-        <div key={y} style={{ display: 'flex' }}>
-          {Array(gridSize).fill().map((_, x) => (
-            <div
-              key={`${x}- ${y}`}
-              style={{
-                width: '20px',
-                height: '20px',
-                backgroundColor: (x === wallyPosition.x && y === wallyPosition.y) ? 'red' : getRandomColor(),
-                border: '1px solid #ccc'
-              }}
-              onClick={() => checkClick(x, y)}
-            />
-          ))}
-        </div>
-      ))}
+      <GameBoard gridSize={gridSize} wallyPosition={wallyPosition} onClick={checkClick} />
       <button onClick={() => navigate('/')}>Home</button>
     </div>
   );
