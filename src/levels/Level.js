@@ -12,6 +12,8 @@ const Level = () => {
   const [score, setScore] = useState(100);
   const [time, setTime] = useState(30);
 
+  const [springProps, setSpringProps] = useSpring(() => ({ opacity: 0 }));
+
   useEffect(() => {
     if (level === 2) setGridSize(30);
     else if (level === 3) setGridSize(40);
@@ -38,11 +40,12 @@ const Level = () => {
   const checkClick = (x, y) => {
     if (x === wallyPosition.x && y === wallyPosition.y) {
       // Success animation
-      const successAnimation = useSpring({ opacity: 1, from: { opacity: 0 }, config: { duration: 1000 } });
+      setSpringProps({ opacity: 1, from: { opacity: 0 }, config: { duration: 1000 } });
       alert('You found Molly!');
-      // Logic for next level or go home
+
+      // Logic for next level or home
       if (level < 3) {
-        navigate(`/level/ ${level + 1}`);
+        navigate(`/level/${level + 1}`);
       } else {
         navigate('/');
       }
@@ -55,7 +58,9 @@ const Level = () => {
     <div>
       <p>Score: {score}</p>
       <p>Time left: {time}</p>
-      <GameBoard gridSize={gridSize} wallyPosition={wallyPosition} onClick={checkClick} />
+      <animated.div style={springProps}>
+        <GameBoard gridSize={gridSize} wallyPosition={wallyPosition} onClick={checkClick} />
+      </animated.div>
       <button onClick={() => navigate('/')}>Home</button>
     </div>
   );
